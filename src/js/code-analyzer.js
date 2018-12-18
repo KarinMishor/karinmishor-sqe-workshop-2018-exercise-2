@@ -1,12 +1,12 @@
 import * as esprima from 'esprima';
-//import * as escodegen from 'escodegen';
+import * as escodegen from 'escodegen';
 let dataForTable=[];
 let line;
 let parse;
 let startFunc =false;
 let globalMap = new Map();
 let localMap= new Map();
-let currMap;
+
 
 const parseCode = (codeToParse) => {
     parse =  esprima.parseScript(codeToParse);
@@ -27,6 +27,8 @@ function getParseData(parse) {
     try {
         findGlobals(parse);
         findFirstBodyType(parse);
+        let newCode = escodegen.generate(parse);
+        line++;
     }
     catch (e) {
         return 'wrong input!';
@@ -35,7 +37,7 @@ function getParseData(parse) {
 
 function findGlobals(parsedObj){
     for (let i = 0; i < parsedObj.body.length && startFunc==false; i++) {
-        findType(parsedObj.body[i]);
+        findType(parsedObj.body[i],false,0);
     }
 }
 
@@ -48,17 +50,17 @@ function findFirstBodyType(parsedObj) {
         body = parsedObj.body[len - 1].body.body;
     }
     for (let i = 0; i < body.length; i++) {
-        findType(body[i],false);
+        findType(body[i],false,0);
     }
 }
-function findBodyType(parsedObj,ifInScope) {
+function findBodyType(parsedObj,ifInScope,currMap) {
     if (parsedObj.body) {
         for (let i = 0; i < parsedObj.body.length; i++) {
-            findType(parsedObj.body[i],ifInScope);
+            findType(parsedObj.body[i],ifInScope,currMap);
         }
 
     } else
-        findType(parsedObj,ifInScope);
+        findType(parsedObj,ifInScope,currMap);
 }
 
 /*function bodyParse(parse) {
@@ -77,12 +79,12 @@ function pushLineToQ (line,type,name,condition,value){
     dataForTable.push({ 'line': line, 'type': type, 'name': name, 'condition' : condition, 'value': value} )  ;
 }
 
-function findType(parsedObj,ifInScope) {
+function findType(parsedObj,ifInScope,currMap) {
     let type = parsedObj.type;
     if (type == ('VariableDeclaration'))
-        VariableDeclaration(parsedObj,ifInScope);
+        VariableDeclaration(parsedObj,ifInScope,currMap);
     else if (type == ('ExpressionStatement'))
-        ExpressionStatement(parsedObj,ifInScope);
+        ExpressionStatement(parsedObj,ifInScope,currMap);
     else if (type== 'FunctionDeclaration') {
         startFunc = true;
         FunctionDeclaration(parsedObj);
@@ -97,7 +99,7 @@ function findComplexType(parsedObj) {
     else if(type==('ForStatement'))
         forStatement(parsedObj);
     else if(type==('IfStatement'))
-        IfStatement(parsedObj);
+        IfStatement(parsedObj,localMap);
     else/* if(type==('ReturnStatement'))*/
         ReturnStatement(parsedObj);
     /*  else return 0;*/
@@ -121,16 +123,19 @@ function ReturnStatement(parsedObj){
     let val =  parseExpression(parsedObj.argument);
     pushLineToQ(line,'return statement' , '', '',val);
     line++;
+    editJason(parsedObj.argument);
 }
 
-function IfStatement(parsedObj){
+function IfStatement(parsedObj,localMap){
     let condition=  parseExpression(parsedObj.test);
     pushLineToQ(line,'if statement','',condition,'');
     line++;
-    currMap=new Map(localMap);
+    //let curr = new Map();
+    let currMap=new Map(localMap);
     let body =parsedObj.consequent;
     // findType((body));
-    findBodyType(body,true);
+    findBodyType(body,true,currMap);
+    editJason(parsedObj.test);
     if(parsedObj.alternate){
         if(parsedObj.alternate.type=='IfStatement') {
             elseIfStatement(parsedObj.alternate);
@@ -145,9 +150,10 @@ function elseIfStatement(parsedObj) {
     pushLineToQ(line,'else if statement','',condition,'');
     line++;
     let body =parsedObj.consequent;
-    currMap=new Map(localMap);
+    let currMap=new Map(localMap);
     // findType((body));
-    findBodyType(body,true);
+    findBodyType(body,true,currMap);
+    editJason(parsedObj.test);
     if(parsedObj.alternate) {
         if (parsedObj.alternate.type == 'IfStatement')
             elseIfStatement(parsedObj.alternate);
@@ -160,8 +166,8 @@ function elseStatement(parsedObj) {
     line++;
     //findType((parsedObj));
     //findType((parsedObj));
-    currMap=new Map(localMap);
-    findBodyType(parsedObj,true);
+    let currMap=new Map(localMap);
+    findBodyType(parsedObj,true,currMap);
 }
 
 function forStatement(parsedObj) {
@@ -180,8 +186,8 @@ function forStatement(parsedObj) {
         right = parseExpression(right); part3=name+''+parsedObj.update.operator+''+right; }
     let condition=part1+';'+part2+';'+part3; pushLineToQ(line,'for statement','',condition,'');
     line++;
-    currMap=new Map(localMap);
-    findBodyType(parsedObj.body,true);
+    //  currMap=new Map(localMap);
+    // findBodyType(parsedObj.body,true);
 }
 
 
@@ -189,10 +195,11 @@ function WhileStatement(parsedObj) {
     let condition = parseExpression(parsedObj.test);
     pushLineToQ(line, 'while statement', '', condition, '');
     line++;
-    currMap=new Map(localMap);
-    findBodyType(parsedObj.body,true);
+    let currMap=new Map(localMap);
+    findBodyType(parsedObj.body,true,currMap);
+    editJason(parsedObj.test);
 }
-function VariableDeclaration (parsedObj,inScope){
+function VariableDeclaration (parsedObj,inScope,currMap){
     let val;
     for(let i=0;i<parsedObj.declarations.length; i++) {
         let VC = parsedObj.declarations[i];
@@ -213,7 +220,7 @@ function VariableDeclaration (parsedObj,inScope){
     line++;
 }
 
-function ExpressionStatement (parsedObj,inScope){
+function ExpressionStatement (parsedObj,inScope,currMap){
     if(parsedObj.expression.type=='AssignmentExpression') {
         let name = parsedObj.expression.left;
         let right = parsedObj.expression.right;
@@ -317,4 +324,33 @@ function AddToMapFunctionDeclaration(parsedJsonCode) {
     }
 }
 
+function editBinaryJason(parsedObj,currMap){
+    let left = parsedObj.left;
+    let right =parsedObj.right;
+
+    if (left.type == ('BinaryExpression'))
+        editBinaryJason(left,currMap);
+    //id or unary
+    else if (left.type == 'Identifier') {
+        replaceJason(left,currMap); }
+
+    if (right.type == ('BinaryExpression'))
+        editBinaryJason(right,currMap);
+    else if(left.type=='Identifier'){
+        replaceJason(right,currMap);}
+
+}
+
+function editJason(parsedObj,currMap){
+    if(parsedObj.type=='BinaryExpression')
+        editBinaryJason(parsedObj,currMap);
+    else if (parsedObj.type=='Identifier')
+        replaceJason(parsedObj,currMap);
+}
+function replaceJason(jason,currMap){
+    let name = jason.name;
+    if (currMap[name] !==undefined){
+        jason.name=currMap[name];
+    }
+}
 
