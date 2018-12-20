@@ -294,7 +294,7 @@ function simpleExpression(exp){
     if(exp.type=='Identifier') {
         return exp.name;
     }
-    else if(exp.type=='Literal') {
+    else/* if(exp.type=='Literal')*/ {
         return exp.value;
     }
     /* else if(exp.type=='UnaryExpression')
