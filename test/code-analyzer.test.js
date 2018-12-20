@@ -51,3 +51,25 @@ describe('check all types1',()=>{
         assert.deepEqual(ans, recieve);
     });
 });
+
+describe('check all types1',()=>{
+    it('wrong', ()=> {
+        let params= 'x=1,y=2,z=3';
+        let text = parseCode('funct' );
+        let recieve = getParseData(text,params);
+        let ans='wrong input!';
+        assert.deepEqual(ans, recieve);
+    });
+});
+
+describe('check all types1',()=>{
+    it('example4', ()=> {
+        let params= 'x=1,y=2,z=3';
+        let text = parseCode('function foo(x, y, z){\n'+
+            'if (1 < z)\n'+
+            'return x + y + z + 1};\n');
+        let recieve = getParseData(text,params);
+        let ans='function foo(x, y, z) {\n    if (1 < z)\n        return x + y + z + 1;\n;\n';
+        assert.deepEqual(ans, recieve);
+    });
+});

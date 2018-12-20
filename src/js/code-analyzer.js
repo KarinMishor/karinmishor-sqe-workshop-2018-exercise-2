@@ -297,11 +297,11 @@ function simpleExpression(exp){
     else if(exp.type=='Literal') {
         return exp.value;
     }
-    else if(exp.type=='UnaryExpression')
+    /* else if(exp.type=='UnaryExpression')
         return exp.operator+''+exp.argument.value;
 
-    else/*if(exp.type=='MemberExpression')*/ {
-        if(exp.property.name=='length'){
+    else/*if(exp.type=='MemberExpression'){*/
+    /*  if(exp.property.name=='length'){
             return exp.object.name + '.' + parseExpression(exp.property) ;
         }
         return exp.object.name + '[' + parseExpression(exp.property) + ']';
