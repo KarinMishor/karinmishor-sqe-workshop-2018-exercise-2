@@ -37,7 +37,7 @@
         </td>
         <td>
             <div>
-                <label>Parsed code here</label>
+                <label>Output code here</label>
             </div>
         </td>
     </tr>
@@ -46,10 +46,13 @@
             <div class="textAreaWrapper">
                 <textarea id="codePlaceholder" title="Enter code here"></textarea>
             </div>
+            <div class="textAreaWrapper" style="height: 50px">
+                <textarea id="varsPlace" placeholder="Enter function variables"></textarea>
+            </div>
         </td>
         <td>
-            <div class="textAreaWrapper">
-                <textarea id="parsedCode" title="Parse code"></textarea>
+            <div class="textAreaWrapper" style=" text-align:initial">
+                <div id="outputSubs" title="Output code" class="func"></div>
             </div>
         </td>
     </tr>
@@ -63,7 +66,7 @@
         </td>
     </tr>
 </table>
-<table id="myTable">
+<table id="myTable" itemtype="hidden">
     <tr>
         <th>Line</th>
         <th>Type</th>

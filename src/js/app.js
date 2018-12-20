@@ -1,17 +1,35 @@
 import $ from 'jquery';
-import {parseCode, getParseData, dataForTable} from './code-analyzer';
+import {parseCode, getParseData, dataForTable,colorMap,lineMapCode} from './code-analyzer';
 let table;
 $(document).ready(function () {
     $('#codeSubmissionButton').click(() => {
         let codeToParse = $('#codePlaceholder').val();
         let parsedCode = parseCode(codeToParse);
         $('#parsedCode').val(JSON.stringify(parsedCode, null, 2));
-
-        getParseData(parsedCode);
+        let params=$('#varsPlace').val();
+        getParseData(parsedCode,params);
+        showFuncColors();
         clearTable();
         insertToTable();
     });
 });
+
+
+function showFuncColors() {
+
+    let output = document.getElementById('outputSubs');
+    let func='';
+    for(let i=0;i<colorMap.size;i++){
+        if(colorMap.get(i)=='green')
+            func+='<span>'+'<mark style="background-color: green">'+lineMapCode.get(i)+'</mark>'+'</span>'+'<br>';
+        else if(colorMap.get(i)=='red')
+            func+='<span>'+'<mark style="background-color: red">'+lineMapCode.get(i)+'</mark>'+'</span>'+'<br>';
+        else
+            func+='<span>'+lineMapCode.get(i)+'\n'+'</span>'+'<br>';
+    }
+    output.innerHTML=func;
+}
+
 
 function insertToTable() {
     table = document.getElementById('myTable');
