@@ -144,9 +144,9 @@ function findComplexType(parsedObj,currMap) {
     /*  else return 0;*/
 }
 function FunctionDeclaration (parsedCode){
-    if(parsedCode.body[0]){
+    /*  if(parsedCode.body[0]){
         parsedCode=parsedCode.body[0];
-    }
+    }*/
     let funName = (parsedCode).id.name;
     pushLineToQ(line,'function declaration',funName,'','');
     for(let i=0;i<(parsedCode).params.length; i++)
@@ -369,7 +369,6 @@ function editBinaryJason(parsedObj,currMap){
 
     if (left.type == ('BinaryExpression'))
         editBinaryJason(left,currMap);
-    //id or unary
     else if (left.type == 'Identifier') {
         replaceJason(left,currMap); }
 
@@ -411,7 +410,6 @@ function setColors(CodeLine,currLine){
     lineToCheck=lineToCheck.replace('else','');
     lineToCheck=lineToCheck.replace('{','');
     lineToCheck=lineToCheck.replace('}','');
-    // lineToCheck=lineToCheck.split(/[\sif{}]+/).filter(s => s !== '');
     if(eval(lineToCheck))
         colorMap.set(currLine,'green');
     else    colorMap.set(currLine,'red');
