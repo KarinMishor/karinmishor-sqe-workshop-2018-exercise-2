@@ -2,7 +2,6 @@ import * as esprima from 'esprima';
 import * as escodegen from 'escodegen';
 let dataForTable=[];
 let line;
-let parse;
 let startFunc =false;
 let globalMap = new Map();
 let localMap= new Map();
@@ -13,15 +12,16 @@ let linesToRemove = new Map();
 
 
 const parseCode = (codeToParse) => {
-    parse =  esprima.parseScript(codeToParse);
+    // parse =  esprima.parseScript(codeToParse);
+    let ans=esprima.parseScript(codeToParse,{ range: true });
     dataForTable=[];
     startFunc =false;
     line=1;
 
-    return parse;
+    return ans;
 };
 
-export {parseCode};
+export {parseCode,globalMap};
 export {getParseData};
 export {dataForTable,colorMap,lineMapCode};
 
@@ -144,9 +144,9 @@ function findComplexType(parsedObj,currMap) {
     /*  else return 0;*/
 }
 function FunctionDeclaration (parsedCode){
-    if(parsedCode.body[0]){
+    /*if(parsedCode.body[0]){
         parsedCode=parsedCode.body[0];
-    }
+    }*/
     let funName = (parsedCode).id.name;
     pushLineToQ(line,'function declaration',funName,'','');
     for(let i=0;i<(parsedCode).params.length; i++)

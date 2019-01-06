@@ -1,21 +1,31 @@
 import $ from 'jquery';
-import {parseCode, getParseData, dataForTable,colorMap,lineMapCode} from './code-analyzer';
-let table;
+import {parseCode, /*getParseData, dataForTable,colorMap,lineMapCode*/} from './code-analyzer';
+import {executeCFG} from './CFG';
+import * as viz from 'viz.js';
+//let table;
 $(document).ready(function () {
     $('#codeSubmissionButton').click(() => {
         let codeToParse = $('#codePlaceholder').val();
         let parsedCode = parseCode(codeToParse);
         $('#parsedCode').val(JSON.stringify(parsedCode, null, 2));
-        let params=$('#varsPlace').val();
-        getParseData(parsedCode,params);
-        showFuncColors();
-        clearTable();
-        insertToTable();
+        //let params=$('#varsPlace').val();
+        //getParseData(parsedCode,params);
+        //showFuncColors();
+        //clearTable();
+        //1insertToTable();
+        let graphString = executeCFG(parsedCode, codeToParse);
+        let newGraph=viz('digraph{'+graphString+'}');
+        showGraph(newGraph);
     });
 });
 
+function showGraph(graphHtml)
+{
+    let htmlObject = document.getElementById('graph');
+    htmlObject.innerHTML=graphHtml;
+}
 
-function showFuncColors() {
+/*function showFuncColors() {
 
     let output = document.getElementById('outputSubs');
     let func='';
@@ -28,10 +38,10 @@ function showFuncColors() {
             func+='<span>'+lineMapCode.get(i)+'\n'+'</span>'+'<br>';
     }
     output.innerHTML=func;
-}
+}*/
 
 
-function insertToTable() {
+/*function insertToTable() {
     table = document.getElementById('myTable');
     if (dataForTable != []) {
         for (let i = 0; i < dataForTable.length; i++) {
@@ -49,8 +59,8 @@ function insertToTable() {
         }
     }
 }
-
-function clearTable(){
+*/
+/*function clearTable(){
     if(table) {
         var rowCount = table.rows.length;
         for (var x=rowCount-1; x>0; x--) {
@@ -58,3 +68,4 @@ function clearTable(){
         }
     }
 }
+*/
