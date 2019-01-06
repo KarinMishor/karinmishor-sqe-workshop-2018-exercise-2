@@ -2,6 +2,7 @@ import * as esprima from 'esprima';
 import * as escodegen from 'escodegen';
 let dataForTable=[];
 let line;
+let parse;
 let startFunc =false;
 let globalMap = new Map();
 let localMap= new Map();
@@ -12,16 +13,15 @@ let linesToRemove = new Map();
 
 
 const parseCode = (codeToParse) => {
-    // parse =  esprima.parseScript(codeToParse);
-    let ans=esprima.parseScript(codeToParse,{ range: true });
+    parse =  esprima.parseScript(codeToParse);
     dataForTable=[];
     startFunc =false;
     line=1;
 
-    return ans;
+    return parse;
 };
 
-export {parseCode,globalMap};
+export {parseCode};
 export {getParseData};
 export {dataForTable,colorMap,lineMapCode};
 
@@ -144,7 +144,7 @@ function findComplexType(parsedObj,currMap) {
     /*  else return 0;*/
 }
 function FunctionDeclaration (parsedCode){
-    /*if(parsedCode.body[0]){
+    /*  if(parsedCode.body[0]){
         parsedCode=parsedCode.body[0];
     }*/
     let funName = (parsedCode).id.name;
@@ -369,7 +369,6 @@ function editBinaryJason(parsedObj,currMap){
 
     if (left.type == ('BinaryExpression'))
         editBinaryJason(left,currMap);
-    //id or unary
     else if (left.type == 'Identifier') {
         replaceJason(left,currMap); }
 
@@ -411,7 +410,6 @@ function setColors(CodeLine,currLine){
     lineToCheck=lineToCheck.replace('else','');
     lineToCheck=lineToCheck.replace('{','');
     lineToCheck=lineToCheck.replace('}','');
-    // lineToCheck=lineToCheck.split(/[\sif{}]+/).filter(s => s !== '');
     if(eval(lineToCheck))
         colorMap.set(currLine,'green');
     else    colorMap.set(currLine,'red');

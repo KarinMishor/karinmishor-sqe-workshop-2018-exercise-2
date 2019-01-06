@@ -1,1 +1,1 @@
-import './CFG-test';
+import './code-analyzer.test';
