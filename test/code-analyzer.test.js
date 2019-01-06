@@ -102,6 +102,15 @@ describe('check all types1',()=>{
         assert.deepEqual(ans, recieve);
     });
 });
+describe('check all types1',()=>{
+    it('example12', ()=> {
+        let params= 'x=1,y=2,z=3';
+        let text = parseCode('function foo(x, y, z){\n'+ ' }' );
+        let recieve = getParseData(text,params);
+        let ans='function foo(x, y, z) {\n';
+        assert.deepEqual(ans, recieve);
+    });
+});
 
 describe('check all types1',()=>{
     it('example2', ()=> {
